@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Maritimo.API/Maritimo.API.csproj" />
+  <Project Path="Maritimo.Data/Maritimo.Data.csproj" />
+  <Project Path="Maritimo.Models/Maritimo.Models.csproj" />
+  <Project Path="Maritimo.Web/Maritimo.Web.csproj" />
+</Solution>

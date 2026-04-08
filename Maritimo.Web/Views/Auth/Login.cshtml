@@ -1,0 +1,54 @@
+﻿
+
+@* <form method="post">
+    <input type="text" name="Correo" placeholder="Correo" />
+    <input type="password" name="Password" placeholder="Contraseña" />
+    <button type="submit">Login</button>
+</form> *@
+
+
+
+@{
+    ViewBag.Title = "Login";
+}
+
+@model Maritimo.Web.ViewModels.UserLogin
+
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+        <button class="btn btn-sm btn-outline-dark"
+                onclick="this.closest('.alert').remove()">
+            ✖
+        </button>
+    </div>
+}
+
+@Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+@using (Html.BeginForm("Login", "Auth", FormMethod.Post))
+{
+    <div class="mb-3">
+        @Html.LabelFor(m => m.Correo)
+        @Html.TextBoxFor(m => m.Correo, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Correo)
+    </div>
+
+    <div class="mb-3">
+        @Html.LabelFor(m => m.Password)
+        @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Password)
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Ingresar
+    </button>
+}
+
+
+
+
+
+
