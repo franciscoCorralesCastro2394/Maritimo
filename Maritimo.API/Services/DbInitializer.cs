@@ -68,7 +68,7 @@ namespace Maritimo.API.Services
             {
                 List<Usuario> usuarios = new List<Usuario>
                 {
-                    new Usuario {  Nombre = "Admin", Password = ComputeSha256Hash("1234"), Correo = "admin@test.com" }
+                    new Usuario {  Nombre = "Admin", Password = ComputeSha256Hash("1234"), Correo = "admin@test.com", Activo = true, FechaCreacion = DateTime.Now }
 
                 };
 
@@ -82,7 +82,7 @@ namespace Maritimo.API.Services
                 
                 List<UsuarioRol> usuarioRoles = new List<UsuarioRol>
                 {
-                    new UsuarioRol {  UsuarioId = 1, RolId = 10 }
+                    new UsuarioRol {  UsuarioId = 2, RolId = 10 }
                 };
 
                 _context.UsuarioRoles.AddRange(usuarioRoles);

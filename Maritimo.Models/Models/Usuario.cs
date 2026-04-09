@@ -12,6 +12,16 @@ namespace Maritimo.Models.Models
         public string Correo { get; set; }
         public string Password { get; set; }
 
+        public bool Activo { get; set; } = true;
+
+        public DateTime FechaCreacion { get; set; } = DateTime.Now;
+
+        public DateTime? FechaModificacion { get; set; }
+
+        public int IntentosFallidos { get; set; }
+
+        public DateTime? BloqueadoHasta { get; set; }
+
         public ICollection<UsuarioRol> UsuarioRoles { get; set; }
     }
 }

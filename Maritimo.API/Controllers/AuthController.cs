@@ -1,5 +1,7 @@
 ﻿using Maritimo.API.Models;
 using Maritimo.Data.Context;
+using Maritimo.Data.Migrations;
+using Maritimo.Models.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,28 +24,57 @@ namespace Maritimo.API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
+            // Obtener configuración de seguridad (ejemplo, no se usa en este código)
+            var config = SecurityConfig.SecurityConfig.GetSettings();
 
-            var usuario = await _context.Usuarios
-                .Include(u => u.UsuarioRoles)
-                .ThenInclude(ur => ur.Rol)
-                .FirstOrDefaultAsync(u =>
+            string hashedPassword = ComputeSha256Hash(request.Password);
+
+            Usuario? usuarioAuth = await _context.Usuarios.FirstOrDefaultAsync(u =>
                     u.Correo == request.Correo &&
-                    u.Password == ComputeSha256Hash(request.Password));
+                    u.Password == hashedPassword && u.Activo);
 
+            Usuario? usuarioExist = await _context.Usuarios.FirstOrDefaultAsync(u =>
+                                            u.Correo == request.Correo && u.Activo);
 
-
-            if (usuario == null)
+            //
+            if (usuarioAuth == null && usuarioExist == null)
             {
                 return Unauthorized("Credenciales incorrectas");
             }
 
-            return Ok(new
+
+            // Verificar si el usuario existe y si está bloqueado
+            if (usuarioExist != null && usuarioAuth == null)
             {
-                usuario.Id,
-                usuario.Nombre,
-                usuario.Correo,
-                Roles = usuario.UsuarioRoles.Select(ur => ur.Rol.Nombre)
-            });
+                if (usuarioExist.BloqueadoHasta != null && usuarioExist.BloqueadoHasta > DateTime.Now)
+                {
+                    return Unauthorized($"Usuario bloqueado hasta {usuarioExist.BloqueadoHasta.Value}");
+                }
+                else 
+                {
+                    usuarioExist.IntentosFallidos += 1;
+
+                    if (usuarioExist.IntentosFallidos >= config.MaxFailedAttempts)
+                    {
+                        usuarioExist.BloqueadoHasta = DateTime.Now.AddMinutes(config.LockMinutes);
+                        usuarioExist.IntentosFallidos = 0; // Reiniciar intentos fallidos después de bloquear
+                    }
+                    await _context.SaveChangesAsync();
+                    return Unauthorized($"Usuario bloqueado temporalmente debido a múltiples intentos fallidos.");
+
+                }
+            }
+            
+            usuarioAuth.IntentosFallidos = 0;
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+                    {
+                        usuarioAuth.Id,
+                        usuarioAuth.Nombre,
+                        usuarioAuth.Correo
+                    });
+                
         }
 
         private string ComputeSha256Hash(string rawData)

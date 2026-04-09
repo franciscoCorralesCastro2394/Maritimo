@@ -1,0 +1,6 @@
+{
+  "LoginSecurity": {
+    "MaxFailedAttempts": 3,
+    "LockMinutes": 10
+  }
+}
