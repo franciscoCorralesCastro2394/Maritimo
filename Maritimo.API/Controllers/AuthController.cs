@@ -77,6 +77,30 @@ namespace Maritimo.API.Controllers
                 
         }
 
+
+        [HttpPost("getRol")]
+        public async Task<IActionResult> getRol([FromBody] string id)
+        {
+
+            Rol? rol = _context.UsuarioRoles
+                .Where(ur => ur.UsuarioId == int.Parse(id))
+                .Select(ur => ur.Rol)
+                .FirstOrDefault();
+
+            if (rol == null) 
+            {
+                return BadRequest("Usuario sin roles");
+            }
+
+            return Ok(new
+            {
+                rol.Nombre
+            });
+
+        }
+
+
+
         private string ComputeSha256Hash(string rawData)
         {
             using (SHA256 sha256Hash = SHA256.Create())

@@ -76,7 +76,7 @@ namespace Maritimo.Web.Controllers
             session.SetString("Correo", correo);
             session.SetString("IdUsuario", idUsuario);
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Dashboard");
         }
     }
 }

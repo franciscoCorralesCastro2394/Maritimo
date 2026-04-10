@@ -1,0 +1,39 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+@{
+
+}
+
+<a href="/Auth/Logout">Cerrar Sesión</a>
+
+<div class="container mt-5">
+    <div class="card shadow p-4" style="border-radius:15px;">
+
+        <div class="mb-4">
+            <h3 class="fw-bold">Dashboard</h3>
+            <p class="text-muted">Bienvenido al Centro de Capacitación de Emergencias</p>
+            <p class="text-muted">
+                Bienvenido @ViewBag.Usuario, tu rol es @ViewBag.Rol.
+            </p>
+        </div>
+
+        @if (@ViewBag.Usuario != null && @ViewBag.Rol == "Administrador")
+        {
+            <div class="mb-3">
+                <a href="@Url.Action("Create", "Participantes")"
+                       class="btn btn-primary w-100">
+                    Registrar Nuevo Participante
+                </a>
+
+
+            </div>
+            
+            
+
+
+       
+        }
+    </div>
+</div>
