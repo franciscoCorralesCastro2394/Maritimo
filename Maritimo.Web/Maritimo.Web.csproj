@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -16,7 +16,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Maritimo.Data\Maritimo.Data.csproj" />
     <ProjectReference Include="..\Maritimo.Models\Maritimo.Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\" />
   </ItemGroup>
 
 </Project>

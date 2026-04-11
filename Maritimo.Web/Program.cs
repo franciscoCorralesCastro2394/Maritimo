@@ -1,9 +1,11 @@
+using Maritimo.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Maritimo.Web.Data;
+
+
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<MaritimoWebContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("MaritimoWebContext") ?? throw new InvalidOperationException("Connection string 'MaritimoWebContext' not found.")));
+builder.Services.AddDbContext<MaritimoDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("MaritimoDbContext") ?? throw new InvalidOperationException("Connection string 'MaritimoDbContext' not found.")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
