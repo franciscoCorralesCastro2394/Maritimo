@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Maritimo.Data.Context;
+using Maritimo.Models.Models;
+using Maritimo.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Maritimo.Data.Context;
-using Maritimo.Models.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Maritimo.Web.Controllers
 {
@@ -163,6 +164,60 @@ namespace Maritimo.Web.Controllers
         private bool UsuarioExists(int id)
         {
             return _context.Usuarios.Any(e => e.Id == id);
+        }
+
+
+        public AsignarRolesVM crearModelo(int id)
+        {
+            AsignarRolesVM vm = new AsignarRolesVM
+            {
+                IdUsuario = id,
+                Roles = _context.Roles.Select(r => new SelectListItem
+                {
+                    Value = r.Id.ToString(),
+                    Text = r.Nombre
+                }).ToList(),
+                NombreUsuario = _context.Usuarios.Where(u => u.Id == id).Select(u => u.Nombre).FirstOrDefault() ?? string.Empty
+            };
+
+            return vm;
+        }
+
+        public IActionResult Asignar(int id)
+        {
+            return View(crearModelo(id));
+        }
+
+
+        [HttpPost]
+        //[ValidateAntiForgeryToken]
+        public ActionResult Asignar(AsignarRolesVM model)
+        {
+            if (model.RolesSeleccionados != null && model.IdUsuario != 0)
+            {
+
+                // 
+                foreach (var rolId in model.RolesSeleccionados)
+                {
+                    var asignacion = new UsuarioRol
+                    {
+                        RolId = rolId,
+                        UsuarioId = model.IdUsuario 
+                    };
+
+                    _context.UsuarioRoles.Add(asignacion);
+                }
+
+
+                _context.SaveChanges();
+                return RedirectToAction("Index", "Usuarios");
+
+            }
+            else
+            {
+                TempData["Error"] = "Errores en asignar Roles";
+                return View(crearModelo(model.IdUsuario));
+            }
         }
     }
 }

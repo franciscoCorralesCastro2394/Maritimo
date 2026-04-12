@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Maritimo.Models.Models;
 using Maritimo.Data.Context;
+using Maritimo.Web.ViewModels;
 
 namespace Maritimo.Web.Controllers
 {
@@ -35,6 +36,14 @@ namespace Maritimo.Web.Controllers
 
             var rol = await _context.Roles
                 .FirstOrDefaultAsync(m => m.Id == id);
+
+            List<Permiso>? permisos = _context.RolPermisos
+                    .Where(rp => rp.RolId == id)
+                    .Select(rp => rp.Permiso)
+                    .ToList();
+
+            ViewBag.Permisos = permisos;
+
             if (rol == null)
             {
                 return NotFound();
@@ -152,6 +161,59 @@ namespace Maritimo.Web.Controllers
         private bool RolExists(int id)
         {
             return _context.Roles.Any(e => e.Id == id);
+        }
+
+        public AsignarPermisoVM crearModelo(int id)
+        {
+            AsignarPermisoVM vm = new AsignarPermisoVM
+            {
+                IdRol = id,
+                Permisos = _context.Permisos.Select(p => new SelectListItem
+                {
+                    Value = p.Id.ToString(),
+                    Text = p.Nombre
+                }).ToList(),
+                NombreRol = _context.Roles.Where(r => r.Id == id).Select(r => r.Nombre).FirstOrDefault() ?? string.Empty
+            };
+
+            return vm;
+        }
+
+        public IActionResult Asignar(int id)
+        {
+            return View(crearModelo(id));
+        }
+
+
+        [HttpPost]
+        //[ValidateAntiForgeryToken]
+        public ActionResult Asignar(AsignarPermisoVM model)
+        {
+            if (model.PermisosSeleccionados != null && model.IdRol != 0)
+            {
+
+                // 
+                foreach (var permisoId in model.PermisosSeleccionados)
+                {
+                    var asignacion = new RolPermiso
+                    {
+                        RolId = model.IdRol,
+                        PermisoId = permisoId
+                    };
+
+                    _context.RolPermisos.Add(asignacion);
+                }
+
+
+                _context.SaveChanges();
+                return RedirectToAction("Index", "Rols");
+
+            }
+            else
+            {
+                TempData["Error"] = "Errores en asignar Permisos";
+                return View(crearModelo(model.IdRol));
+            }
         }
     }
 }

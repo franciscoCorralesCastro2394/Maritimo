@@ -18,6 +18,27 @@
         </dd>
     </dl>
 </div>
+
+<div>
+    <h4> Permisos del Roles</h4>
+    <hr />
+    <dl class="row">
+        @if (@ViewBag.Permisos != null)
+        {
+            @foreach (var item in @ViewBag.Permisos)
+            {
+                <h1>@item.Nombre</h1>
+                <br />
+            }
+        }
+        else
+        {
+            <h4>Este Rol no tiene Permisos asignados</h4>
+        }
+    </dl>
+</div>
+
+
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
