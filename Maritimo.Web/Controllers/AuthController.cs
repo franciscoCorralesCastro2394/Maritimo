@@ -1,4 +1,6 @@
-﻿using Maritimo.Web.ViewModels;
+﻿using Maritimo.Web.Models;
+using Maritimo.Web.Services;
+using Maritimo.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Maritimo.Web.Controllers
@@ -6,10 +8,13 @@ namespace Maritimo.Web.Controllers
     public class AuthController : Controller
     {
         private readonly HttpClient _http;
+        private readonly BitacoraService _bitacoraService;
 
-        public AuthController(IHttpClientFactory factory)
+        public AuthController(IHttpClientFactory factory, BitacoraService bitacoraService)
         {
             _http = factory.CreateClient("API");
+            _bitacoraService = bitacoraService;
+
         }
 
         [HttpGet]
@@ -28,6 +33,11 @@ namespace Maritimo.Web.Controllers
             {
                 ViewBag.Error = "Credenciales incorrectas";
                 TempData["Error"] = "Credenciales incorrectas";
+                // Log the authentication error with details
+
+                await _bitacoraService.RegistrarLog("Error de autenticación", "Info");
+
+                
                 return View();
             }
 
@@ -37,6 +47,9 @@ namespace Maritimo.Web.Controllers
             {
                 ViewBag.Error = "Error al leer la respuesta del servidor";
                 TempData["Error"] = "Error al leer la respuesta del servidor";
+
+                await _bitacoraService.RegistrarLog("Error al leer la respuesta del servidor", "Info");
+
                 return View();
             }
 
@@ -49,6 +62,9 @@ namespace Maritimo.Web.Controllers
             {
                 ViewBag.Error = "Datos de usuario incompletos";
                 TempData["Error"] = "Datos de usuario incompletos";
+
+                await _bitacoraService.RegistrarLog("Datos de usuario incompletos", "Info");
+
                 return View();
             }
 
@@ -75,6 +91,8 @@ namespace Maritimo.Web.Controllers
             session.SetString("Usuario", nombre);
             session.SetString("Correo", correo);
             session.SetString("IdUsuario", idUsuario);
+
+            await _bitacoraService.RegistrarLog("Usuario loggeado con exito: " + nombre, "Info");
 
             return RedirectToAction("Index", "Dashboard");
         }

@@ -22,14 +22,10 @@ namespace Maritimo.API.Controllers
             if (bitacora == null) 
             {
                 return BadRequest("El objeto bitacora no puede ser nulo.");
-
-
             }
 
                 _context.Bitacoras.Add(bitacora);
                 await _context.SaveChangesAsync();
-
-
 
             return Ok(new
             {

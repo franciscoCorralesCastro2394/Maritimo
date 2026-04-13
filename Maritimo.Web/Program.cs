@@ -1,4 +1,5 @@
 using Maritimo.Data.Context;
+using Maritimo.Web.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,9 +25,16 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+builder.Services.AddSession();
+
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddScoped<BitacoraService>();
+
+
 var app = builder.Build();
 
-builder.Services.AddSession();
+
 
 app.UseSession();
 

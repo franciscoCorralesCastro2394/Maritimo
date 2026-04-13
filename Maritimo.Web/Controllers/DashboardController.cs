@@ -1,5 +1,6 @@
 ﻿using Maritimo.Models.Models;
 using Maritimo.Web.Models;
+using Maritimo.Web.Services;
 using Maritimo.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +12,13 @@ namespace Maritimo.Web.Controllers
     public class DashboardController : Controller
     {
         private readonly HttpClient _http;
+        private readonly BitacoraService _bitacoraService;
 
-        public DashboardController(IHttpClientFactory factory)
+
+        public DashboardController(IHttpClientFactory factory, BitacoraService bitacoraService)
         {
             _http = factory.CreateClient("API");
+            _bitacoraService = bitacoraService;
         }
 
         // GET: DashboardController
@@ -22,6 +26,8 @@ namespace Maritimo.Web.Controllers
         {
             var idUsuario = HttpContext.Session.GetString("IdUsuario");
             var nombreUsuuario = HttpContext.Session.GetString("Usuario");
+
+            await _bitacoraService.RegistrarLog("Ingreso al Dashboard" + nombreUsuuario, "Info");
 
             if (idUsuario == null)
             {

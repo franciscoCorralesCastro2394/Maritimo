@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Maritimo.Models.Models
+﻿namespace Maritimo.Web.Models
 {
-    public class Bitacora
+    public class BitacoraMV
     {
+
         public int Id { get; set; }
         public string DescripcionLog { get; set; }
         public string TipoLog { get; set; }
         public DateTime? FechaLog { get; set; }
-
     }
 }

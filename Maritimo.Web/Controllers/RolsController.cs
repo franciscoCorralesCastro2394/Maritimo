@@ -1,23 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Maritimo.Data.Context;
+using Maritimo.Models.Models;
+using Maritimo.Web.Services;
+using Maritimo.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Maritimo.Models.Models;
-using Maritimo.Data.Context;
-using Maritimo.Web.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Maritimo.Web.Controllers
 {
     public class RolsController : Controller
     {
         private readonly MaritimoDbContext _context;
-
-        public RolsController(MaritimoDbContext context)
+        private readonly BitacoraService _bitacoraService;
+        private string? usuario = "";
+        public RolsController(MaritimoDbContext context, BitacoraService bitacoraService)
         {
             _context = context;
+            _bitacoraService = bitacoraService;
+            usuario = HttpContext.Session.GetString("IdUsuario");
         }
 
         // GET: Rols
@@ -69,6 +73,7 @@ namespace Maritimo.Web.Controllers
             {
                 _context.Add(rol);
                 await _context.SaveChangesAsync();
+                await _bitacoraService.RegistrarLog("Creacion del Rol " + rol.Nombre + usuario, "Info");
                 return RedirectToAction(nameof(Index));
             }
             return View(rol);
@@ -107,6 +112,7 @@ namespace Maritimo.Web.Controllers
                 try
                 {
                     _context.Update(rol);
+                    await _bitacoraService.RegistrarLog("Edición del Rol " + rol.Nombre + usuario, "Info");
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -152,6 +158,8 @@ namespace Maritimo.Web.Controllers
             if (rol != null)
             {
                 _context.Roles.Remove(rol);
+                await _bitacoraService.RegistrarLog("Eliminación del Rol " + rol.Nombre + usuario, "Info");
+
             }
 
             await _context.SaveChangesAsync();
@@ -202,8 +210,9 @@ namespace Maritimo.Web.Controllers
                     };
 
                     _context.RolPermisos.Add(asignacion);
-                }
+                    using var bitacora = _bitacoraService.RegistrarLog("Asignación de Permisos " + permisoId.ToString() + " al rol "+  model.IdRol, "Info");
 
+                }
 
                 _context.SaveChanges();
                 return RedirectToAction("Index", "Rols");
