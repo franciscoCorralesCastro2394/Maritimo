@@ -1,5 +1,7 @@
-﻿using Maritimo.Data.Context;
+﻿using Azure;
+using Maritimo.Data.Context;
 using Maritimo.Models.Models;
+using Maritimo.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
 
 namespace Maritimo.Web.Controllers
 {
@@ -14,14 +17,48 @@ namespace Maritimo.Web.Controllers
     {
         private readonly MaritimoDbContext _context;
 
-        public PermisoesController(MaritimoDbContext context)
+        private readonly HttpClient _http;
+
+
+        public PermisoesController(IHttpClientFactory factory,MaritimoDbContext context)
         {
+            _http = factory.CreateClient("API");
             _context = context;
+
         }
 
         // GET: Permisoes
         public async Task<IActionResult> Index()
         {
+            var idUsuario = HttpContext.Session.GetString("IdUsuario");
+            var nombreUsuuario = HttpContext.Session.GetString("Usuario");
+
+            // Verificar si el IdUsuario es nulo
+            if (string.IsNullOrEmpty(idUsuario))
+            {
+                ViewBag.Error = "Usuario no autenticado";
+                TempData["Error"] = "Usuario no autenticado";
+                return View();
+            }
+
+            // Realizar la solicitud HTTP para obtener el rol del usuario
+            var response = await _http.PostAsJsonAsync("api/auth/getRol", idUsuario);
+
+            // Verificar si la respuesta fue exitosa
+            if (!response.IsSuccessStatusCode)
+            {
+                ViewBag.Error = "Error en obtener el Rol";
+                TempData["Error"] = "Error en obtener el Rol";
+                return View();
+            }
+
+            // Leer la respuesta y obtener el rol
+            var rol = await response.Content.ReadFromJsonAsync<RolResponse>();
+
+            ViewBag.Rol = rol.Nombre;
+
+            ViewBag.UsuarioLoggeado = nombreUsuuario;
+
             return View(await _context.Permisos.ToListAsync());
         }
 

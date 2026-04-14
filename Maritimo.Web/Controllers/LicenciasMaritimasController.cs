@@ -22,6 +22,16 @@ namespace Maritimo.Web.Controllers
         // GET: LicenciasMaritimas
         public async Task<IActionResult> Index()
         {
+            // Verificar si el usuario tiene un rol en la sesión
+            var rolUsuario = HttpContext.Session.GetString("Rol");
+
+            if (rolUsuario == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            ViewBag.Rol = rolUsuario;
+
             return View(await _context.LicenciasMaritimas.ToListAsync());
         }
 
@@ -32,6 +42,15 @@ namespace Maritimo.Web.Controllers
             {
                 return NotFound();
             }
+
+            var rolUsuario = HttpContext.Session.GetString("Rol");
+
+            if (rolUsuario == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            ViewBag.Rol = rolUsuario;
 
             var licenciasMaritimas = await _context.LicenciasMaritimas
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -54,13 +73,17 @@ namespace Maritimo.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,NombreLicencia,FechaExpiracion")] LicenciasMaritimas licenciasMaritimas)
+        public async Task<IActionResult> Create([Bind("NombreLicencia,FechaExpiracion")] LicenciasMaritimas licenciasMaritimas)
         {
-            if (ModelState.IsValid)
+            try
             {
                 _context.Add(licenciasMaritimas);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
+            }catch (Exception ex)
+            {
+                var error = ModelState.Values.SelectMany(e => e.Errors);
+                TempData["Error"] = error;
             }
             return View(licenciasMaritimas);
         }
@@ -92,27 +115,22 @@ namespace Maritimo.Web.Controllers
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
-            {
                 try
                 {
                     _context.Update(licenciasMaritimas);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException ex)
                 {
                     if (!LicenciasMaritimasExists(licenciasMaritimas.Id))
                     {
+                        TempData["Error"] = ex.ToString();
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
                 }
-                return RedirectToAction(nameof(Index));
-            }
+               
+            
             return View(licenciasMaritimas);
         }
 

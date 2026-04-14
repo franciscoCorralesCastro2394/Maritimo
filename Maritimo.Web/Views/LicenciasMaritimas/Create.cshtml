@@ -4,6 +4,17 @@
     ViewData["Title"] = "Create";
 }
 
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+        <button class="btn btn-sm btn-outline-dark"
+                onclick="this.closest('.alert').remove()">
+            ✖
+        </button>
+    </div>
+}
+
 <h1>Create</h1>
 
 <h4>LicenciasMaritimas</h4>

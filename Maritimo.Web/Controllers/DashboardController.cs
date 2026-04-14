@@ -26,6 +26,7 @@ namespace Maritimo.Web.Controllers
         {
             var idUsuario = HttpContext.Session.GetString("IdUsuario");
             var nombreUsuuario = HttpContext.Session.GetString("Usuario");
+            var rolUsuario = HttpContext.Session.GetString("Rol");
 
             await _bitacoraService.RegistrarLog("Ingreso al Dashboard" + nombreUsuuario, "Info");
 
@@ -34,26 +35,9 @@ namespace Maritimo.Web.Controllers
                 return RedirectToAction("Login", "Auth");
             }
 
-            var response = await _http.PostAsJsonAsync("api/auth/getRol", idUsuario);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                ViewBag.Error = "Error en obtener el Rol";
-                TempData["Error"] = "Error en obtener el Rol";
-                return View();
-            }
-
-            var rol = await response.Content.ReadFromJsonAsync<RolResponse>();
-
-            if (rol == null)
-            {
-                ViewBag.Error = "Error al leer la respuesta del servidor";
-                TempData["Error"] = "Error al leer la respuesta del servidor";
-                return View();
-            }
 
             ViewBag.Usuario = nombreUsuuario;
-            ViewBag.Rol = rol.Nombre;
+            ViewBag.Rol = rolUsuario;
 
             return View();
         }

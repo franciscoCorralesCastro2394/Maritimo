@@ -36,7 +36,6 @@ namespace Maritimo.Web.Controllers
                 // Log the authentication error with details
 
                 await _bitacoraService.RegistrarLog("Error de autenticación", "Info");
-
                 
                 return View();
             }
@@ -53,10 +52,29 @@ namespace Maritimo.Web.Controllers
                 return View();
             }
 
+
+
+            // Realizar la solicitud HTTP para obtener el rol del usuario
+            var responseRol = await _http.PostAsJsonAsync("api/auth/getRol", usuario.Id.ToString());
+
+            // Verificar si la respuesta fue exitosa
+            if (!responseRol.IsSuccessStatusCode)
+            {
+                ViewBag.Error = "Error en obtener el Rol";
+                TempData["Error"] = "Error en obtener el Rol";
+
+                await _bitacoraService.RegistrarLog("Error en obtener el Rol", "Info");
+                return View();
+            }
+
+            // Leer la respuesta y obtener el rol
+            var rol = await responseRol.Content.ReadFromJsonAsync<RolResponse>();
+
             // Safely obtain fields from the dynamic object
             string? idUsuario = usuario.Id.ToString();
             string? nombre = (string?)usuario.Nombre;
             string? correo = (string?)usuario.Correo;
+            string? rolUsuaurio = (string?)rol.Nombre;
 
             if (string.IsNullOrEmpty(nombre) || string.IsNullOrEmpty(correo))
             {
@@ -91,6 +109,7 @@ namespace Maritimo.Web.Controllers
             session.SetString("Usuario", nombre);
             session.SetString("Correo", correo);
             session.SetString("IdUsuario", idUsuario);
+            session.SetString("Rol", rolUsuaurio);
 
             await _bitacoraService.RegistrarLog("Usuario loggeado con exito: " + nombre, "Info");
 

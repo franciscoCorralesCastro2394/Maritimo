@@ -19,9 +19,10 @@
             </p>
         </div>
 
-        @if (@ViewBag.Usuario != null && @ViewBag.Rol == "Administrador")
-        {
-            <div class="mb-3">
+       @*  @if (@ViewBag.Usuario != null && @ViewBag.Rol == "Administrador")
+        { } *@
+
+        <div class="mb-3">
                 <a href="@Url.Action("Index", "Rols")"
                        class="btn btn-primary w-100">
                     Roles
@@ -42,8 +43,20 @@
                 </a>
             </div>
 
+            <div class="mb-3">
+                <a href="@Url.Action("Index", "Personals")"
+                       class="btn btn-primary w-100">
+                    Personal
+                </a>
+            </div>
 
+        <div class="mb-3">
+            <a href="@Url.Action("Index", "LicenciasMaritimas")"
+                   class="btn btn-primary w-100">
+                Licencias Maritimas
+            </a>
+        </div>
        
-        }
+        
     </div>
 </div>

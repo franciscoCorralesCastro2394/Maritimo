@@ -1,12 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Maritimo.Data.Context;
+using Maritimo.Models.Models;
+using Maritimo.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Maritimo.Data.Context;
-using Maritimo.Models.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Maritimo.Web.Controllers
 {
@@ -14,14 +17,38 @@ namespace Maritimo.Web.Controllers
     {
         private readonly MaritimoDbContext _context;
 
-        public PersonalsController(MaritimoDbContext context)
+        private readonly HttpClient _http;
+
+
+
+        public PersonalsController(IHttpClientFactory factory, MaritimoDbContext context)
         {
+            _http = factory.CreateClient("API");
             _context = context;
         }
+
 
         // GET: Personals
         public async Task<IActionResult> Index()
         {
+            var idUsuario = HttpContext.Session.GetString("IdUsuario");
+            var nombreUsuuario = HttpContext.Session.GetString("Usuario");
+            var rolUsuario = HttpContext.Session.GetString("Rol");
+
+            // Verificar si el IdUsuario es nulo
+            if (string.IsNullOrEmpty(idUsuario))
+            {
+                ViewBag.Error = "Usuario no autenticado";
+                TempData["Error"] = "Usuario no autenticado";
+                return View();
+            }
+
+
+            ViewBag.Rol = rolUsuario;
+
+            ViewBag.UsuarioLoggeado = nombreUsuuario;
+
+
             var maritimoDbContext = _context.Personales.Include(p => p.Rol);
             return View(await maritimoDbContext.ToListAsync());
         }
@@ -42,6 +69,8 @@ namespace Maritimo.Web.Controllers
                 return NotFound();
             }
 
+            var rolUsuario = HttpContext.Session.GetString("Rol");
+            ViewBag.Rol = rolUsuario;
             return View(personal);
         }
 
@@ -57,14 +86,24 @@ namespace Maritimo.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,NombreCompleto,IdentificacionUnica,RolId,FechaContratacion")] Personal personal)
+        public async Task<IActionResult> Create([Bind("NombreCompleto,IdentificacionUnica,RolId,FechaContratacion")] Personal personal)
         {
-            if (ModelState.IsValid)
+
+            personal.Rol = await _context.Roles.FindAsync(personal.RolId);
+
+            try
             {
                 _context.Add(personal);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
+
             }
+            catch(Exception ex)
+            {
+                var error = ModelState.Values.SelectMany(e => e.Errors);
+                TempData["Error"] = error;
+
+            } 
             ViewData["RolId"] = new SelectList(_context.Roles, "Id", "Nombre", personal.RolId);
             return View(personal);
         }
@@ -97,29 +136,28 @@ namespace Maritimo.Web.Controllers
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
-            {
+           
                 try
                 {
                     _context.Update(personal);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException ex)
                 {
+                    TempData["Error"] = ex.ToString();
                     if (!PersonalExists(personal.Id))
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                   
+
+                ViewData["RolId"] = new SelectList(_context.Roles, "Id", "Nombre", personal.RolId);
+                return View(personal);
             }
-            ViewData["RolId"] = new SelectList(_context.Roles, "Id", "Nombre", personal.RolId);
-            return View(personal);
+                
+            
+
         }
 
         // GET: Personals/Delete/5
