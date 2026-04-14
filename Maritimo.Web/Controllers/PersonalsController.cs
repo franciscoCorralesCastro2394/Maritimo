@@ -1,6 +1,8 @@
 ﻿using Maritimo.Data.Context;
 using Maritimo.Models.Models;
 using Maritimo.Web.Models;
+using Maritimo.Web.Services;
+using Maritimo.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -19,12 +21,14 @@ namespace Maritimo.Web.Controllers
 
         private readonly HttpClient _http;
 
+        private readonly BitacoraService _bitacoraService;
 
 
-        public PersonalsController(IHttpClientFactory factory, MaritimoDbContext context)
+        public PersonalsController(IHttpClientFactory factory, MaritimoDbContext context, BitacoraService bitacoraService)
         {
             _http = factory.CreateClient("API");
             _context = context;
+            _bitacoraService = bitacoraService;
         }
 
 
@@ -197,6 +201,60 @@ namespace Maritimo.Web.Controllers
         private bool PersonalExists(int id)
         {
             return _context.Personales.Any(e => e.Id == id);
+        }
+
+        public AsignarLicVM crearModelo(int id)
+        {
+            AsignarLicVM vm = new AsignarLicVM
+            {
+                IdPersonal = id,
+                Licencias  = _context.LicenciasMaritimas.Select(p => new SelectListItem
+                {
+                    Value = p.Id.ToString(),
+                    Text = p.NombreLicencia
+                }).ToList(),
+                NombrePersonal = _context.Personales.Where(p => p.Id == id).Select(p => p.NombreCompleto).FirstOrDefault() ?? string.Empty
+            };
+
+            return vm;
+        }
+
+        public IActionResult AsignarLic(int id)
+        {
+            return View(crearModelo(id));
+        }
+
+
+        [HttpPost]
+        //[ValidateAntiForgeryToken]
+        public ActionResult Asignar(AsignarLicVM model)
+        {
+            if (model.LicenciasSeleccionados != null && model.IdPersonal != 0)
+            {
+
+                // 
+                foreach (var licenciaId in model.LicenciasSeleccionados)
+                {
+                    var asignacion = new LicenciasPersonal
+                    {
+                        LicenciaId = licenciaId,
+                        PersonalId = model.IdPersonal
+                    };
+
+                    _context.LicenciasPersonal.Add(asignacion);
+                    using var bitacora = _bitacoraService.RegistrarLog("Asignación de Licencias " + licenciaId.ToString() + " al personal " + model.IdPersonal, "Info");
+
+                }
+
+                _context.SaveChanges();
+                return RedirectToAction("Index", "Personals");
+
+            }
+            else
+            {
+                TempData["Error"] = "Errores en asignar Licencias";
+                return View(crearModelo(model.IdPersonal));
+            }
         }
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Maritimo.Data.Migrations
 {
     [DbContext(typeof(MaritimoDbContext))]
-    [Migration("20260414071133_licenciasPersonalRelacion")]
-    partial class licenciasPersonalRelacion
+    [Migration("20260414073130_licper2")]
+    partial class licper2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

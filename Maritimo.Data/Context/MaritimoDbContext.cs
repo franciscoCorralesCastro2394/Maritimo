@@ -23,6 +23,7 @@ namespace Maritimo.Data.Context
         public DbSet<LicenciasMaritimas> LicenciasMaritimas { get; set; }
         public DbSet<LicenciasPersonal> LicenciasPersonal { get; set; }
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
