@@ -1,5 +1,65 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@model Maritimo.Web.ViewModels.AsignarLicVM 
+
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+        <button class="btn btn-sm btn-outline-dark"
+                onclick="this.closest('.alert').remove()">
+            ✖
+        </button>
+    </div>
 }
+
+
+
+<h3>Asignar Permisos</h3>
+<div class="card">
+
+    <div class="card-body">
+
+        <p><strong>Nombre del personal:</strong> @Model.NombrePersonal</p>
+
+        @using (Html.BeginForm())
+        {
+            @Html.HiddenFor(m => m.IdPersonal)
+
+            <div class="form-group mb-3">
+
+                <label>Cursos</label>
+
+                <div class="form-group">
+
+                    @foreach (var lics in Model.Licencias)
+                    {
+                        <div class="form-check">
+
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="LicenciasSeleccionados"
+                                   value="@lics.Value" />
+
+                            <label class="form-check-label">
+                                @lics.Text
+                            </label>
+
+                        </div>
+                    }
+
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    Asignar
+                </button>
+
+                <a href="@Url.Action("Index", "Personals")" class="btn btn-secondary">
+                    Cancelar
+                </a>
+
+            </div>
+
+        }
+    </div>
+</div>
+

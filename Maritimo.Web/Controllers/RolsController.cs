@@ -195,7 +195,7 @@ namespace Maritimo.Web.Controllers
 
         [HttpPost]
         //[ValidateAntiForgeryToken]
-        public ActionResult Asignar(AsignarPermisoVM model)
+        public async Task<ActionResult> Asignar(AsignarPermisoVM model)
         {
             if (model.PermisosSeleccionados != null && model.IdRol != 0)
             {
@@ -210,7 +210,7 @@ namespace Maritimo.Web.Controllers
                     };
 
                     _context.RolPermisos.Add(asignacion);
-                    using var bitacora = _bitacoraService.RegistrarLog("Asignación de Permisos " + permisoId.ToString() + " al rol "+  model.IdRol, "Info");
+                    await _bitacoraService.RegistrarLog("Asignación de Permisos " + permisoId.ToString() + " al rol "+  model.IdRol, "Info");
 
                 }
 

@@ -1,0 +1,84 @@
+﻿@model IEnumerable<Maritimo.Models.Models.Barco>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+@if (ViewBag.Rol == "Administrador")
+{
+    
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Nombre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Matricula)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tonelaje)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IdPuertoBase)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ModeloMotor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PotenciaMotor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HoraUsoMotor)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Nombre)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Matricula)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Tonelaje)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IdPuertoBase)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ModeloMotor)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PotenciaMotor)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.HoraUsoMotor)
+            </td>
+            <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    @if (ViewBag.Rol == "Administrador")
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                    }
+                    |
+                    @if (ViewBag.Rol == "Administrador")
+                    {
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    }
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -68,6 +68,14 @@ namespace Maritimo.Web.Controllers
             var personal = await _context.Personales
                 .Include(p => p.Rol)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
+            List<LicenciasMaritimas>? licencias = _context.LicenciasPersonal
+                                .Where(lp => lp.PersonalId == id)
+                                .Select(lp => lp.Licencia).Distinct()   
+                                .ToList();
+
+            ViewBag.Licencias = licencias;
+
             if (personal == null)
             {
                 return NotFound();
@@ -92,6 +100,13 @@ namespace Maritimo.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("NombreCompleto,IdentificacionUnica,RolId,FechaContratacion")] Personal personal)
         {
+            
+            var existe = _context.Personales.Any(p => p.IdentificacionUnica == personal.IdentificacionUnica);
+            if (existe)
+            {
+                TempData["Error"] = "Ya existe un personal con la misma identificación única.";
+                return View(personal);
+            }
 
             personal.Rol = await _context.Roles.FindAsync(personal.RolId);
 
@@ -106,8 +121,7 @@ namespace Maritimo.Web.Controllers
             {
                 var error = ModelState.Values.SelectMany(e => e.Errors);
                 TempData["Error"] = error;
-
-            } 
+            }
             ViewData["RolId"] = new SelectList(_context.Roles, "Id", "Nombre", personal.RolId);
             return View(personal);
         }
@@ -156,7 +170,7 @@ namespace Maritimo.Web.Controllers
                     }
                    
 
-                ViewData["RolId"] = new SelectList(_context.Roles, "Id", "Nombre", personal.RolId);
+                //ViewData["RolId"] = new SelectList(_context.Roles, "Id", "Nombre", personal.RolId);
                 return View(personal);
             }
                 
@@ -205,6 +219,7 @@ namespace Maritimo.Web.Controllers
 
         public AsignarLicVM crearModelo(int id)
         {
+            // Obtener el personal
             AsignarLicVM vm = new AsignarLicVM
             {
                 IdPersonal = id,
@@ -227,12 +242,12 @@ namespace Maritimo.Web.Controllers
 
         [HttpPost]
         //[ValidateAntiForgeryToken]
-        public ActionResult Asignar(AsignarLicVM model)
+        public async Task<ActionResult> AsignarLic(AsignarLicVM model)
         {
             if (model.LicenciasSeleccionados != null && model.IdPersonal != 0)
             {
 
-                // 
+                //
                 foreach (var licenciaId in model.LicenciasSeleccionados)
                 {
                     var asignacion = new LicenciasPersonal
@@ -242,11 +257,11 @@ namespace Maritimo.Web.Controllers
                     };
 
                     _context.LicenciasPersonal.Add(asignacion);
-                    using var bitacora = _bitacoraService.RegistrarLog("Asignación de Licencias " + licenciaId.ToString() + " al personal " + model.IdPersonal, "Info");
-
+                    await _bitacoraService.RegistrarLog("Asignación de Licencias " + licenciaId.ToString() + " al personal " + model.IdPersonal, "Info");
                 }
 
                 _context.SaveChanges();
+
                 return RedirectToAction("Index", "Personals");
 
             }

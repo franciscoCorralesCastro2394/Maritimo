@@ -61,7 +61,11 @@
                     {
                         <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
                     }
-
+                    |
+                    @if (ViewBag.Rol == "Administrador")
+                    {
+                        <a asp-action="AsignarLic" asp-route-id="@item.Id">Asignar Licencia</a>
+                    }
             </td>
         </tr>
 }

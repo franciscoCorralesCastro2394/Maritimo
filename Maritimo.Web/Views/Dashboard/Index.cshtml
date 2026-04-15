@@ -13,7 +13,7 @@
 
         <div class="mb-4">
             <h3 class="fw-bold">Dashboard</h3>
-            <p class="text-muted">Bienvenido al Centro de Capacitación de Emergencias</p>
+            <p class="text-muted">Bienvenido Maritimo.Web</p>
             <p class="text-muted">
                 Bienvenido @ViewBag.Usuario, tu rol es @ViewBag.Rol.
             </p>
@@ -54,6 +54,21 @@
             <a href="@Url.Action("Index", "LicenciasMaritimas")"
                    class="btn btn-primary w-100">
                 Licencias Maritimas
+            </a>
+        </div>
+
+        
+        <div class="mb-3">
+            <a href="@Url.Action("Index", "Puertoes")"
+                   class="btn btn-primary w-100">
+                Puertos
+            </a>
+        </div>
+
+        <div class="mb-3">
+            <a href="@Url.Action("Index", "Barcoes")"
+                   class="btn btn-primary w-100">
+                Barcos
             </a>
         </div>
        
