@@ -28,7 +28,7 @@
                 @Html.DisplayNameFor(model => model.Tonelaje)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IdPuertoBase)
+                @Html.DisplayNameFor(model => model.PuertoId)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.ModeloMotor)
@@ -38,6 +38,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.HoraUsoMotor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Activo)
             </th>
             <th></th>
         </tr>
@@ -55,7 +58,7 @@
                 @Html.DisplayFor(modelItem => item.Tonelaje)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.IdPuertoBase)
+                    @Html.DisplayFor(modelItem => item.PuertoId)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ModeloMotor)
@@ -66,6 +69,9 @@
             <td>
                 @Html.DisplayFor(modelItem => item.HoraUsoMotor)
             </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Activo)
+                </td>
             <td>
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
                     @if (ViewBag.Rol == "Administrador")
@@ -75,7 +81,7 @@
                     |
                     @if (ViewBag.Rol == "Administrador")
                     {
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id">Archivar</a>
                     }
             </td>
         </tr>

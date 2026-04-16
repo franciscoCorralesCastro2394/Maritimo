@@ -1,5 +1,6 @@
 ﻿using Maritimo.Data.Context;
 using Maritimo.Models.Models;
+using Maritimo.Web.Services;
 using Maritimo.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -7,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Maritimo.Web.Controllers
@@ -14,15 +17,34 @@ namespace Maritimo.Web.Controllers
     public class UsuariosController : Controller
     {
         private readonly MaritimoDbContext _context;
+        private readonly BitacoraService _bitacoraService;
 
-        public UsuariosController(MaritimoDbContext context)
+
+        public UsuariosController(MaritimoDbContext context, BitacoraService bitacoraService)
         {
             _context = context;
+            _bitacoraService = bitacoraService;
         }
 
         // GET: Usuarios
         public async Task<IActionResult> Index()
         {
+            var idUsuario = HttpContext.Session.GetString("IdUsuario");
+            var nombreUsuuario = HttpContext.Session.GetString("Usuario");
+            var rolUsuario = HttpContext.Session.GetString("Rol");
+
+            // Verificar si el IdUsuario es nulo
+            if (string.IsNullOrEmpty(idUsuario))
+            {
+                ViewBag.Error = "Usuario no autenticado";
+                TempData["Error"] = "Usuario no autenticado";
+                return View();
+            }
+
+
+            ViewBag.Rol = rolUsuario;
+
+            ViewBag.UsuarioLoggeado = nombreUsuuario;
             return View(await _context.Usuarios.ToListAsync());
         }
 
@@ -66,13 +88,21 @@ namespace Maritimo.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nombre,Correo,Password,Activo,FechaCreacion,FechaModificacion,IntentosFallidos,BloqueadoHasta")] Usuario usuario)
+        public async Task<IActionResult> Create([Bind("Id,Nombre,Correo,Password,Activo")] Usuario usuario)
         {
-            if (ModelState.IsValid)
+            usuario.Password = ComputeSha256Hash(usuario.Password);
+
+            try
             {
+                usuario.FechaCreacion = DateTime.Now;
                 _context.Add(usuario);
                 await _context.SaveChangesAsync();
+                await _bitacoraService.RegistrarLog($"Creacion del Usuuario {usuario.Nombre} por {HttpContext.Session.GetString("Usuario")}", "Info");
                 return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex) 
+            {
+                TempData["Error"] = "Error al crear el usuario: " + ex.Message;
             }
             return View(usuario);
         }
@@ -98,34 +128,34 @@ namespace Maritimo.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nombre,Correo,Password,Activo,FechaCreacion,FechaModificacion,IntentosFallidos,BloqueadoHasta")] Usuario usuario)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nombre,Correo,Password,Activo")] Usuario usuario)
         {
             if (id != usuario.Id)
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
-            {
+            
                 try
                 {
+                    usuario.FechaModificacion = DateTime.Now;
                     _context.Update(usuario);
                     await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!UsuarioExists(usuario.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                    await _bitacoraService.RegistrarLog($"Edición del Usuario {usuario.Nombre} por {HttpContext.Session.GetString("Usuario")}", "Info");
+                    return RedirectToAction(nameof(Index));
             }
-            return View(usuario);
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    TempData["Error"] = "Error al crear el rol: " + ex.Message;
+
+                    if (!UsuarioExists(usuario.Id))
+                        {
+                            return NotFound();
+                        }
+                        return View(usuario);
+            }
+                
+            
+
         }
 
         // GET: Usuarios/Delete/5
@@ -154,7 +184,9 @@ namespace Maritimo.Web.Controllers
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario != null)
             {
-                _context.Usuarios.Remove(usuario);
+                usuario.Activo = false;
+                _context.Entry(usuario).State = EntityState.Modified;
+                //_context.Usuarios.Remove(usuario);
             }
 
             await _context.SaveChangesAsync();
@@ -217,6 +249,21 @@ namespace Maritimo.Web.Controllers
             {
                 TempData["Error"] = "Errores en asignar Roles";
                 return View(crearModelo(model.IdUsuario));
+            }
+        }
+
+
+        private string ComputeSha256Hash(string rawData)
+        {
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+                StringBuilder builder = new StringBuilder();
+                foreach (byte t in bytes)
+                {
+                    builder.Append(t.ToString("x2"));
+                }
+                return builder.ToString();
             }
         }
     }

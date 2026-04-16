@@ -50,21 +50,26 @@
                 @Html.DisplayFor(modelItem => item.FechaContratacion)
             </td>
             <td>
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a class="btn-info" asp-action="Details" asp-route-id="@item.Id">Details</a> |
                 
                     @if (ViewBag.Rol == "Administrador")
                     {
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> 
+                        <a class="btn-warning" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
                     }
                     |
                     @if (ViewBag.Rol == "Administrador")
                     {
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        <a class="btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
                     }
                     |
                     @if (ViewBag.Rol == "Administrador")
                     {
-                        <a asp-action="AsignarLic" asp-route-id="@item.Id">Asignar Licencia</a>
+                        <a class="btn-info" asp-action="AsignarLic" asp-route-id="@item.Id">Asignar Licencia</a>
+                    }
+                    |
+                    @if (ViewBag.Rol == "Administrador")
+                    {
+                        <a class="btn-info" asp-action="AsignarBarco" asp-route-id="@item.Id">Asignar Barco</a>
                     }
             </td>
         </tr>

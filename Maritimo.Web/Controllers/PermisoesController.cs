@@ -2,6 +2,7 @@
 using Maritimo.Data.Context;
 using Maritimo.Models.Models;
 using Maritimo.Web.Models;
+using Maritimo.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -19,12 +20,14 @@ namespace Maritimo.Web.Controllers
 
         private readonly HttpClient _http;
 
+        private readonly BitacoraService _bitacoraService;
 
-        public PermisoesController(IHttpClientFactory factory,MaritimoDbContext context)
+
+        public PermisoesController(IHttpClientFactory factory,MaritimoDbContext context, BitacoraService bitacoraService)
         {
             _http = factory.CreateClient("API");
             _context = context;
-
+            _bitacoraService = bitacoraService;
         }
 
         // GET: Permisoes
@@ -93,12 +96,18 @@ namespace Maritimo.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Nombre")] Permiso permiso)
         {
-            if (ModelState.IsValid)
+            try
             {
                 _context.Add(permiso);
                 await _context.SaveChangesAsync();
+                await _bitacoraService.RegistrarLog($"Creacion del Permiso {permiso.Nombre} por {HttpContext.Session.GetString("Usuario")}", "Info");
                 return RedirectToAction(nameof(Index));
+            }catch (Exception ex)
+            {
+                ViewBag.Error = "Error al crear el permiso: " + ex.Message;
+                TempData["Error"] = "Error al crear el permiso: " + ex.Message;
             }
+            
             return View(permiso);
         }
 
@@ -130,27 +139,27 @@ namespace Maritimo.Web.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
-            {
+            
                 try
                 {
                     _context.Update(permiso);
                     await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
+                    await _bitacoraService.RegistrarLog($"Edición del Permiso {permiso.Nombre} por {HttpContext.Session.GetString("Usuario")}", "Info");
+                    return RedirectToAction(nameof(Index));
+
+            }
+            catch (DbUpdateConcurrencyException ex)
                 {
-                    if (!PermisoExists(permiso.Id))
+                TempData["Error"] = ex.ToString();
+                if (!PermisoExists(permiso.Id))
                     {
+
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
             return View(permiso);
+
+            }
+
         }
 
         // GET: Permisoes/Delete/5

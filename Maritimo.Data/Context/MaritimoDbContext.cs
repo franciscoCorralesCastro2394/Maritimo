@@ -25,21 +25,20 @@ namespace Maritimo.Data.Context
         public DbSet<Puerto> Puertos { get; set; }
         public DbSet<Barco> Barcos { get; set; }
 
+        public DbSet<PersonalBarcoRol> PersonalBarcosRoles { get; set; }
+        public DbSet<Ruta> Rutas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            //modelBuilder.Entity<PersonalBarco>()
+            //    .HasOne(pb => pb.Rol)
+            //    .WithMany()
+            //    .HasForeignKey(pb => pb.RolId)
+            //    .OnDelete(DeleteBehavior.Restrict); // 🔥 CAMBIO CLAVE
 
-            // 🌱 Seed (opcional pero recomendado)
-            modelBuilder.Entity<Rol>().HasData(
-                new Rol { Id = 1, Nombre = "Administrador" },
-                new Rol { Id = 2, Nombre = "Capitan" },
-                new Rol { Id = 3, Nombre = "Primer Oficial" },
-                new Rol { Id = 4, Nombre = "Ingeniero" },
-                new Rol { Id = 5, Nombre = "Personal Base" },
-                new Rol { Id = 6, Nombre = "Marineros" }
-            );
+
         }
     }
 }

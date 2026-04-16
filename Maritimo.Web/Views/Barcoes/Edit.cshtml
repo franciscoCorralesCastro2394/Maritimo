@@ -39,10 +39,16 @@
                 <input asp-for="Tonelaje" class="form-control" />
                 <span asp-validation-for="Tonelaje" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="IdPuertoBase" class="control-label"></label>
-                <input asp-for="IdPuertoBase" class="form-control" />
-                <span asp-validation-for="IdPuertoBase" class="text-danger"></span>
+            <div class="form-group mb-3">
+
+                @Html.LabelFor(m => m.PuertoId, "Puertos")
+
+                @Html.DropDownListFor(
+                    m => m.PuertoId,
+                    (IEnumerable<SelectListItem>)ViewBag.Puertos,
+                    "Seleccione un Puerto",
+                    new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.PuertoId, "", new { @class = "text-danger" })
             </div>
             <div class="form-group">
                 <label asp-for="ModeloMotor" class="control-label"></label>

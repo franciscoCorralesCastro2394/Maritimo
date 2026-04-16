@@ -16,17 +16,31 @@ namespace Maritimo.Web.Controllers
     {
         private readonly MaritimoDbContext _context;
         private readonly BitacoraService _bitacoraService;
-        private string? usuario = "";
         public RolsController(MaritimoDbContext context, BitacoraService bitacoraService)
         {
             _context = context;
             _bitacoraService = bitacoraService;
-            usuario = HttpContext.Session.GetString("IdUsuario");
         }
 
         // GET: Rols
         public async Task<IActionResult> Index()
         {
+            var idUsuario = HttpContext.Session.GetString("IdUsuario");
+            var nombreUsuuario = HttpContext.Session.GetString("Usuario");
+            var rolUsuario = HttpContext.Session.GetString("Rol");
+
+            // Verificar si el IdUsuario es nulo
+            if (string.IsNullOrEmpty(idUsuario))
+            {
+                ViewBag.Error = "Usuario no autenticado";
+                TempData["Error"] = "Usuario no autenticado";
+                return View();
+            }
+
+
+            ViewBag.Rol = rolUsuario;
+
+            ViewBag.UsuarioLoggeado = nombreUsuuario;
             return View(await _context.Roles.ToListAsync());
         }
 
@@ -47,6 +61,9 @@ namespace Maritimo.Web.Controllers
                     .ToList();
 
             ViewBag.Permisos = permisos;
+
+            var rolUsuario = HttpContext.Session.GetString("Rol");
+            ViewBag.Rol = rolUsuario;
 
             if (rol == null)
             {
@@ -69,12 +86,16 @@ namespace Maritimo.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Nombre")] Rol rol)
         {
-            if (ModelState.IsValid)
+            try
             {
                 _context.Add(rol);
                 await _context.SaveChangesAsync();
-                await _bitacoraService.RegistrarLog("Creacion del Rol " + rol.Nombre + usuario, "Info");
+                await _bitacoraService.RegistrarLog($"Creacion del Rol {rol.Nombre} por {HttpContext.Session.GetString("Usuario")}", "Info");
                 return RedirectToAction(nameof(Index));
+            }catch (Exception ex)
+            {
+                // Manejar la excepción, por ejemplo, registrándola o mostrando un mensaje de error
+                TempData["Error"] = "Error al crear el rol: " + ex.Message;
             }
             return View(rol);
         }
@@ -107,28 +128,24 @@ namespace Maritimo.Web.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
-            {
+            
                 try
                 {
                     _context.Update(rol);
-                    await _bitacoraService.RegistrarLog("Edición del Rol " + rol.Nombre + usuario, "Info");
+                    await _bitacoraService.RegistrarLog($"Creacion del Rol {rol.Nombre} por {HttpContext.Session.GetString("Usuario")}", "Info");
                     await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!RolExists(rol.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index));
             }
-            return View(rol);
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    TempData["Error"] = ex.ToString();
+                    if (!RolExists(rol.Id))
+                        {
+
+                        return NotFound();
+                        }
+                return View(rol);
+            }
         }
 
         // GET: Rols/Delete/5
@@ -158,8 +175,7 @@ namespace Maritimo.Web.Controllers
             if (rol != null)
             {
                 _context.Roles.Remove(rol);
-                await _bitacoraService.RegistrarLog("Eliminación del Rol " + rol.Nombre + usuario, "Info");
-
+                await _bitacoraService.RegistrarLog($"Creacion del Rol {rol.Nombre} por {HttpContext.Session.GetString("Usuario")}", "Info");
             }
 
             await _context.SaveChangesAsync();

@@ -9,6 +9,7 @@ namespace Maritimo.Models.Models
     {
 
         public int Id { get; set; }
+        public bool Activo { get; set; }
 
         [Required(ErrorMessage = "La Nombre es obligatoria")]
         public string Nombre { get; set; }
@@ -19,8 +20,7 @@ namespace Maritimo.Models.Models
         [Required(ErrorMessage = "La Tonelaje es obligatoria")]
         public int Tonelaje { get; set; }
 
-        [Required(ErrorMessage = "Puerto base es obligatoria")]
-        public int IdPuertoBase { get; set; }
+        public int PuertoId { get; set; }
 
         public Puerto Puerto { get; set; }
 

@@ -4,6 +4,7 @@ using Maritimo.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Maritimo.Data.Migrations
 {
     [DbContext(typeof(MaritimoDbContext))]
-    partial class MaritimoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260416041503_cambiosDB")]
+    partial class cambiosDB
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,10 +33,10 @@ namespace Maritimo.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("Activo")
-                        .HasColumnType("bit");
-
                     b.Property<int>("HoraUsoMotor")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdPuertoBase")
                         .HasColumnType("int");
 
                     b.Property<string>("Matricula")
@@ -178,34 +181,6 @@ namespace Maritimo.Data.Migrations
                     b.ToTable("Personales");
                 });
 
-            modelBuilder.Entity("Maritimo.Models.Models.PersonalBarcoRol", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BarcoId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PersonalId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RolId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BarcoId");
-
-                    b.HasIndex("PersonalId");
-
-                    b.HasIndex("RolId");
-
-                    b.ToTable("PersonalBarcosRoles");
-                });
-
             modelBuilder.Entity("Maritimo.Models.Models.Puerto", b =>
                 {
                     b.Property<int>("Id")
@@ -261,44 +236,6 @@ namespace Maritimo.Data.Migrations
                     b.HasIndex("RolId");
 
                     b.ToTable("RolPermisos");
-                });
-
-            modelBuilder.Entity("Maritimo.Models.Models.Ruta", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BarcoId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Estado")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("FechaPrevistaLlegada")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("FechaPrevistaSalida")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("puertoLlegadaId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("puertoSalidaId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BarcoId");
-
-                    b.HasIndex("puertoLlegadaId");
-
-                    b.HasIndex("puertoSalidaId");
-
-                    b.ToTable("Rutas");
                 });
 
             modelBuilder.Entity("Maritimo.Models.Models.Usuario", b =>
@@ -405,33 +342,6 @@ namespace Maritimo.Data.Migrations
                     b.Navigation("Rol");
                 });
 
-            modelBuilder.Entity("Maritimo.Models.Models.PersonalBarcoRol", b =>
-                {
-                    b.HasOne("Maritimo.Models.Models.Barco", "Barco")
-                        .WithMany()
-                        .HasForeignKey("BarcoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Maritimo.Models.Models.Personal", "Personal")
-                        .WithMany()
-                        .HasForeignKey("PersonalId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Maritimo.Models.Models.Rol", "Rol")
-                        .WithMany()
-                        .HasForeignKey("RolId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Barco");
-
-                    b.Navigation("Personal");
-
-                    b.Navigation("Rol");
-                });
-
             modelBuilder.Entity("Maritimo.Models.Models.RolPermiso", b =>
                 {
                     b.HasOne("Maritimo.Models.Models.Permiso", "Permiso")
@@ -449,33 +359,6 @@ namespace Maritimo.Data.Migrations
                     b.Navigation("Permiso");
 
                     b.Navigation("Rol");
-                });
-
-            modelBuilder.Entity("Maritimo.Models.Models.Ruta", b =>
-                {
-                    b.HasOne("Maritimo.Models.Models.Barco", "Barco")
-                        .WithMany()
-                        .HasForeignKey("BarcoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Maritimo.Models.Models.Puerto", "puertoLlegada")
-                        .WithMany()
-                        .HasForeignKey("puertoLlegadaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Maritimo.Models.Models.Puerto", "puertoSalida")
-                        .WithMany()
-                        .HasForeignKey("puertoSalidaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Barco");
-
-                    b.Navigation("puertoLlegada");
-
-                    b.Navigation("puertoSalida");
                 });
 
             modelBuilder.Entity("Maritimo.Models.Models.UsuarioRol", b =>

@@ -4,6 +4,17 @@
     ViewData["Title"] = "Index";
 }
 
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+        <button class="btn btn-sm btn-outline-dark"
+                onclick="this.closest('.alert').remove()">
+            ✖
+        </button>
+    </div>
+}
+
 <h1>Index</h1>
 
 <p>
@@ -43,10 +54,22 @@
                 @Html.DisplayFor(modelItem => item.FechaCreacion)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> |
-                    <a asp-action="Asignar" asp-route-id="@item.Id">Asignar Rol</a>
+                    <a class="btn-info" asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                
+                    @if (ViewBag.Rol == "Administrador")
+                    {
+                        <a class="btn-warning" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                    }
+                    |
+                    @if (ViewBag.Rol == "Administrador")
+                    {
+                        <a class="btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    }
+                    |
+                    @if (ViewBag.Rol == "Administrador")
+                    {
+                        <a class="btn-info" asp-action="Asignar" asp-route-id="@item.Id">Asignar Rol</a>
+                    }
             </td>
         </tr>
 }

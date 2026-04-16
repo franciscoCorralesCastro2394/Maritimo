@@ -239,7 +239,6 @@ namespace Maritimo.Web.Controllers
             return View(crearModelo(id));
         }
 
-
         [HttpPost]
         //[ValidateAntiForgeryToken]
         public async Task<ActionResult> AsignarLic(AsignarLicVM model)
@@ -258,6 +257,71 @@ namespace Maritimo.Web.Controllers
 
                     _context.LicenciasPersonal.Add(asignacion);
                     await _bitacoraService.RegistrarLog("Asignación de Licencias " + licenciaId.ToString() + " al personal " + model.IdPersonal, "Info");
+                }
+
+                _context.SaveChanges();
+
+                return RedirectToAction("Index", "Personals");
+
+            }
+            else
+            {
+                TempData["Error"] = "Errores en asignar Licencias";
+                return View(crearModelo(model.IdPersonal));
+            }
+        }
+
+        
+        public AsignarBarcoVM crearModeloBarco(int id)
+        {
+            // Crear modelo para asignar barco
+            // Obtener el personal
+            AsignarBarcoVM vm = new AsignarBarcoVM
+            {
+                IdPersonal = id,
+
+                
+                Barcos = _context.Barcos.Select(p => new SelectListItem
+                {
+                    Value = p.Id.ToString(),
+                    Text = p.Nombre
+                }).ToList(),
+
+                Roles = _context.Roles.Select(p => new SelectListItem
+                {
+                    Value = p.Id.ToString(),
+                    Text = p.Nombre
+                }).ToList(),
+
+                NombrePersonal = _context.Personales.Where(p => p.Id == id).Select(p => p.NombreCompleto).FirstOrDefault() ?? string.Empty
+            };
+
+            return vm;
+        }
+
+        public IActionResult AsignarBarco(int id)
+        {
+            return View(crearModeloBarco(id));
+        }
+
+        [HttpPost]
+        //[ValidateAntiForgeryToken]
+        public async Task<ActionResult> AsignarBarco(AsignarBarcoVM model)
+        {
+            if (model.BarcosSeleccionados != null && model.IdPersonal != 0 && model.IdRol != 0)
+            {
+                // Asignar barco al personal con el rol seleccionado
+                foreach (var barcoId in model.BarcosSeleccionados)
+                {
+                    var asignacion = new PersonalBarcoRol
+                    {
+                        RolId = model.IdRol,
+                        PersonalId = model.IdPersonal,
+                        BarcoId = barcoId
+                    };
+
+                    _context.PersonalBarcosRoles.Add(asignacion);
+                    await _bitacoraService.RegistrarLog("Asignación de Barco " + barcoId.ToString() + " al personal " + model.IdPersonal, "Info");
                 }
 
                 _context.SaveChanges();

@@ -4,6 +4,18 @@
     ViewData["Title"] = "Edit";
 }
 
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+        <button class="btn btn-sm btn-outline-dark"
+                onclick="this.closest('.alert').remove()">
+            ✖
+        </button>
+    </div>
+}
+
+
 <h1>Edit</h1>
 
 <h4>Usuario</h4>
@@ -33,26 +45,7 @@
                     <input class="form-check-input" asp-for="Activo" /> @Html.DisplayNameFor(model => model.Activo)
                 </label>
             </div>
-            <div class="form-group">
-                <label asp-for="FechaCreacion" class="control-label"></label>
-                <input asp-for="FechaCreacion" class="form-control" />
-                <span asp-validation-for="FechaCreacion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FechaModificacion" class="control-label"></label>
-                <input asp-for="FechaModificacion" class="form-control" />
-                <span asp-validation-for="FechaModificacion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IntentosFallidos" class="control-label"></label>
-                <input asp-for="IntentosFallidos" class="form-control" />
-                <span asp-validation-for="IntentosFallidos" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="BloqueadoHasta" class="control-label"></label>
-                <input asp-for="BloqueadoHasta" class="form-control" />
-                <span asp-validation-for="BloqueadoHasta" class="text-danger"></span>
-            </div>
+           
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
