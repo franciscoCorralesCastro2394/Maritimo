@@ -69,11 +69,29 @@ namespace Maritimo.Web.Controllers
                 .Include(p => p.Rol)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
+            // Obtener licencias, roles y barcos asociados al personal
             List<LicenciasMaritimas>? licencias = _context.LicenciasPersonal
                                 .Where(lp => lp.PersonalId == id)
                                 .Select(lp => lp.Licencia).Distinct()   
                                 .ToList();
 
+            List<Barco>? barcos = _context.PersonalBarcosRoles
+                                .Where(pbr => pbr.PersonalId == id)
+                                .Select(pbr => pbr.Barco).Distinct()
+                                .ToList();
+
+            List<Rol>? roles = _context.PersonalBarcosRoles
+                                .Where(pbr => pbr.PersonalId == id)
+                                .Select(pbr => pbr.Rol).Distinct()
+                                .ToList();
+
+            // Si no hay licencias, roles o barcos, asignar null para evitar problemas en la vista
+            if (licencias.Count == 0) licencias = null;
+            if (roles.Count == 0) roles = null;
+            if (barcos.Count == 0) barcos = null;
+
+            ViewBag.Barcos = barcos;
+            ViewBag.Roles = roles;
             ViewBag.Licencias = licencias;
 
             if (personal == null)

@@ -51,6 +51,9 @@
     </dl>
 </div>
 
+
+<br />  
+
 <div>
     <h4> Licencias Maritimas asignadas </h4>
     <hr />
@@ -98,6 +101,90 @@
         }
     </dl>
 </div>
+
+<br />
+
+
+<div>
+    <h4> Barcos asignadas @Model.NombreCompleto</h4>
+    <hr />
+    <dl class="row">
+        @if (@ViewBag.Barcos != null)
+        {
+            <table class="table table-striped table-bordered w-100">
+                <thead>
+                    <tr>
+                        <th>
+                            Nombre Barco
+                        </th>
+                        <th>
+                            Matricula
+                        </th>
+                    </tr>
+                </thead>
+        
+
+
+                <tbody>
+                    @foreach (var item in @ViewBag.Barcos)
+                    {
+                        <tr>
+                            <td>
+                                @item.Nombre
+                            </td>
+                            <td>
+                                @item.Matricula
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <h4>Este Personal no tiene Barcos asignados</h4>
+        }
+    </dl>
+</div>
+
+<br />
+
+
+<div>
+    <h4> Roles asignadas @Model.NombreCompleto</h4>
+    <hr />
+    <dl class="row">
+        @if (@ViewBag.Roles != null)
+        {
+            <table class="table table-striped table-bordered w-100">
+                <thead>
+                    <tr>
+                        <th>
+                            Nombre Rol
+                        </th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in @ViewBag.Roles)
+                    {
+                        <tr>
+                            <td>
+                                @item.Nombre
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <h4>Este Personal no tiene Barcos asignados</h4>
+        }
+    </dl>
+</div>
+
+
 <div>
     @if (ViewBag.Rol == "Administrador")
     {

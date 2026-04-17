@@ -62,8 +62,22 @@ namespace Maritimo.Web.Controllers
                 return NotFound();
             }
 
+            // Obtener el rol del usuario desde la sesión
             var rolUsuario = HttpContext.Session.GetString("Rol");
             ViewBag.Rol = rolUsuario;
+
+            // Obtener rutas actuales e historial
+            var rutasActual = await _context.Rutas.Where(r => r.BarcoId == id && r.Estado != "Completada").ToListAsync();
+            var rutasHistorial = await _context.Rutas.Where(r => r.BarcoId == id && r.Estado == "Completada").ToListAsync();
+
+            // Si no hay rutas, asignar null para evitar mostrar secciones vacías en la vista
+            if (rutasActual.Count == 0) rutasActual = null;
+            if(rutasHistorial.Count == 0) rutasHistorial = null;
+
+            // Obtener los puertos para mostrar en la vista
+            ViewBag.RutasActual = rutasActual;
+            ViewBag.RutasHistorial = rutasHistorial;
+
 
             return View(barco);
         }

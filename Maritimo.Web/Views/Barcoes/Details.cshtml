@@ -54,6 +54,117 @@
         </dd>
     </dl>
 </div>
+
+<br/>
+
+<div>
+    <h4> Rutas Actuales del Barco @Model.Nombre</h4>
+    <hr />
+    <dl class="row">
+        @if (@ViewBag.RutasActual != null)
+        {
+            <table class="table table-striped table-bordered w-100">
+                <thead>
+                    <tr>
+                        <th>
+                            Ruta
+                        </th>
+                        <th>
+                            Fechas Salida
+                        </th>
+                        <th>
+                            Fechas Llegada
+                        </th>
+                        <th>
+                            Estado
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in @ViewBag.RutasActual)
+                    {
+                        <tr>
+                            <td>
+                                @item.puertoSalidaId + " - " + @item.puertoSalidaId
+                            </td>
+                            <td>
+                                @item.FechaPrevistaSalida
+                            </td>
+                            <td>
+                                @item.FechaPrevistaLlegada
+                            </td>
+                            <td>
+                                @item.Estado
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <h4>Este Barco no tiene rutas actuales</h4>
+        }
+    </dl>
+</div>
+
+<br />
+
+<div>
+    <h4> Rutas Actuales del Barco @Model.Nombre</h4>
+    <hr />
+    <dl class="row">
+        @if (@ViewBag.RutasHistorial != null)
+        {
+            <table class="table table-striped table-bordered w-100">
+                <thead>
+                    <tr>
+                        <th>
+                            Ruta
+                        </th>
+                        <th>
+                            Fechas Salida
+                        </th>
+                        <th>
+                            Fechas Llegada
+                        </th>
+                        <th>
+                            Estado
+                        </th>
+                    </tr>
+                </thead>
+        
+
+
+                <tbody>
+                    @foreach (var item in @ViewBag.RutasHistorial)
+                    {
+                        <tr>
+                            <td>
+                                @item.puertoSalidaId + " - " + @item.puertoSalidaId
+                            </td>
+                            <td>
+                                @item.FechaPrevistaSalida
+                            </td>
+                            <td>
+                                @item.FechaPrevistaLlegada
+                            </td>
+                            <td>
+                                @item.Estado
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <h4>Este Barco no tiene rutas actuales</h4>
+        }
+    </dl>
+</div>
+
+
 <div>
     @if (ViewBag.Rol == "Administrador")
     {

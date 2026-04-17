@@ -4,6 +4,17 @@
     ViewData["Title"] = "Edit";
 }
 
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+        <button class="btn btn-sm btn-outline-dark"
+                onclick="this.closest('.alert').remove()">
+            ✖
+        </button>
+    </div>
+}
+
 <h1>Edit</h1>
 
 <h4>Ruta</h4>
@@ -18,31 +29,43 @@
                 <select asp-for="puertoSalidaId" class="form-control" asp-items="ViewBag.puertoSalidaId"></select>
                 <span asp-validation-for="puertoSalidaId" class="text-danger"></span>
             </div>
+            <br/>
             <div class="form-group">
                 <label asp-for="puertoLlegadaId" class="control-label"></label>
                 <select asp-for="puertoLlegadaId" class="form-control" asp-items="ViewBag.puertoLlegadaId"></select>
                 <span asp-validation-for="puertoLlegadaId" class="text-danger"></span>
             </div>
+            <br />
+
             <div class="form-group">
                 <label asp-for="BarcoId" class="control-label"></label>
                 <select asp-for="BarcoId" class="form-control" asp-items="ViewBag.BarcoId"></select>
                 <span asp-validation-for="BarcoId" class="text-danger"></span>
             </div>
+            <br />
+
             <div class="form-group">
                 <label asp-for="FechaPrevistaSalida" class="control-label"></label>
                 <input asp-for="FechaPrevistaSalida" class="form-control" />
                 <span asp-validation-for="FechaPrevistaSalida" class="text-danger"></span>
             </div>
+            <br />
+
             <div class="form-group">
                 <label asp-for="FechaPrevistaLlegada" class="control-label"></label>
                 <input asp-for="FechaPrevistaLlegada" class="form-control" />
                 <span asp-validation-for="FechaPrevistaLlegada" class="text-danger"></span>
             </div>
+            <br />
+
             <div class="form-group">
                 <label asp-for="Estado" class="control-label"></label>
-                <input asp-for="Estado" class="form-control" />
+                @* <input asp-for="Estado" class="form-control" /> *@
+                <select asp-for="Estado" class="form-control" asp-items="ViewBag.Estado"></select>
                 <span asp-validation-for="Estado" class="text-danger"></span>
             </div>
+            <br />
+
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
