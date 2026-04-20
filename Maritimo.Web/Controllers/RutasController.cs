@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Maritimo.Data.Context;
+using Maritimo.Models.Models;
+using Maritimo.Web.Models;
+using Maritimo.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Maritimo.Data.Context;
-using Maritimo.Models.Models;
-using Maritimo.Web.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Maritimo.Web.Controllers
 {
@@ -149,51 +150,48 @@ namespace Maritimo.Web.Controllers
 
             try
             {
-                // Obtener el estado actual de la ruta desde la base de datos
-                var estado = _context.Rutas.Find(ruta.Id).Estado;
-
                 // Si el estado no ha cambiado, simplemente actualizamos la ruta sin validar la tripulación
-                if (estado == ObtenerEstadoTravesia(int.Parse(ruta.Estado)))
+                if (estadoRuta(ruta.Id) == ObtenerEstadoTravesia(int.Parse(ruta.Estado)))
                 {
                     ruta.Estado = ObtenerEstadoTravesia(int.Parse(ruta.Estado));
-                    _context.Update(ruta);
+                    _context.Entry(ruta).State = EntityState.Modified;
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
 
                 }
-                else
+
+
+                // Si el estado ha cambiado a "Completada", validamos la tripulación y actualizamos la fecha de cierre y el usuario que cerró la ruta
+                if (ObtenerEstadoTravesia(int.Parse(ruta.Estado)) == "Completada" || ObtenerEstadoTravesia(int.Parse(ruta.Estado)) == "Cancelada")
                 {
-                    // Si el estado ha cambiado a "Completada", validamos la tripulación y actualizamos la fecha de cierre y el usuario que cerró la ruta
-                    if (ObtenerEstadoTravesia(int.Parse(ruta.Estado)) == "Completada")
+                    ruta.FechaCierre = DateTime.Now;
+                    ruta.UsuarioCierre = HttpContext.Session.GetString("Usuario");
+                    ruta.Estado = ObtenerEstadoTravesia(int.Parse(ruta.Estado));
+                    _context.Entry(ruta).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+
+                }
+
+               
+
+                if (ObtenerEstadoTravesia(int.Parse(ruta.Estado)) == "En Curso")
+                {
+
+                    // Si el estado ha cambiado, validamos la tripulación antes de actualizar la ruta
+                    if (TripulacionValida(ruta.BarcoId))
                     {
-                        ruta.FechaCierre = DateTime.Now;
-                        ruta.UsuarioCierre = HttpContext.Session.GetString("Usuario");
-                        _context.Update(ruta);
+                        ruta.Estado = ObtenerEstadoTravesia(int.Parse(ruta.Estado));
+                        _context.Entry(ruta).State = EntityState.Modified;
                         await _context.SaveChangesAsync();
                         return RedirectToAction(nameof(Index));
-
                     }
-                    else 
+                    else
                     {
-
-                        // Si el estado ha cambiado, validamos la tripulación antes de actualizar la ruta
-                        if (TripulacionValida(ruta.BarcoId))
-                        {
-                            ruta.Estado = ObtenerEstadoTravesia(int.Parse(ruta.Estado));
-                            _context.Update(ruta);
-                            await _context.SaveChangesAsync();
-                            return RedirectToAction(nameof(Index));
-                        }
-                        else
-                        {
-                            TempData["Error"] = "No se puede modificar esta ruta por falta de personal";
-                        }
-
-
-
+                        TempData["Error"] = "No se puede modificar esta ruta por falta de personal";
                     }
-                    
                 }
+
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -243,7 +241,8 @@ namespace Maritimo.Web.Controllers
             var ruta = await _context.Rutas.FindAsync(id);
             if (ruta != null)
             {
-                _context.Rutas.Remove(ruta);
+                ruta.Estado = "Archivado";
+                //_context.Rutas.Remove(ruta);
             }
 
             await _context.SaveChangesAsync();
@@ -256,7 +255,7 @@ namespace Maritimo.Web.Controllers
         }
 
 
-
+        // Método para validar la tripulación de un barco antes de permitir modificar la ruta
         private bool TripulacionValida(int barcoId)
         {
             var personal = _context.PersonalBarcosRoles
@@ -274,10 +273,58 @@ namespace Maritimo.Web.Controllers
                    marineros >= 5;
         }
 
+        // Método para obtener el estado de la travesía a partir del ID
         private string ObtenerEstadoTravesia(int estadoId)
         {
             var estado = estadosTravesia.FirstOrDefault(e => e.Id == estadoId);
             return estado != null ? estado.Estado : "Desconocido";
+        }
+
+        // Método para obtener el estado actual de la ruta desde la base de datos
+        private string estadoRuta(int rutaId)
+        {
+            
+            return _context.Rutas
+                .AsNoTracking()
+                .Where(r => r.Id == rutaId)
+                .Select(r => r.Estado)
+                .FirstOrDefault() ?? "Desconocido";
+
+        }
+
+
+        public IActionResult Panel()
+        {
+            List<Ruta> rutas = _context.Rutas.ToList();
+
+            // Si no hay rutas, asignar null para evitar mostrar secciones vacías en la vista
+            if (rutas.Count == 0)
+            {
+                rutas = null;
+                ViewBag.Rutas = rutas;
+            }
+
+            return View(generarRuta(rutas));
+
+        }
+
+        private List<RutaVM> generarRuta(List<Ruta> rutas)
+        {
+            List<RutaVM> rutasVM = new List<RutaVM>();
+            foreach (var ruta in rutas)
+            {
+                rutasVM.Add(new RutaVM
+                {
+                    puertoSalida = _context.Puertos.Find(ruta.puertoSalidaId)?.Nombre ?? "Desconocido",
+                    puertoLlegada = _context.Puertos.Find(ruta.puertoLlegadaId)?.Nombre ?? "Desconocido",
+                    FechaPrevistaSalida = ruta.FechaPrevistaSalida,
+                    FechaPrevistaLlegada = ruta.FechaPrevistaLlegada,
+                    Estado = ruta.Estado,
+                    FechaCierre = ruta.FechaCierre,
+                    UsuarioCierre = ruta.UsuarioCierre
+                });
+            }
+            return rutasVM;
         }
 
     }

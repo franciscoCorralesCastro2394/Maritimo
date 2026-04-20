@@ -1,0 +1,55 @@
+﻿@model List<Maritimo.Web.ViewModels.RutaVM>                     
+
+
+<div>
+    <h4>Panel de Rutas</h4>
+    <hr />
+    <dl class="row">
+
+        @if (Model != null)
+        {
+            <table class="table table-striped table-bordered w-100">
+                <thead>
+                    <tr>
+                        <th>
+                            Ruta
+                        </th>
+                        <th>
+                            Fechas Salida
+                        </th>
+                        <th>
+                            Fechas Llegada
+                        </th>
+                        <th>
+                            Estado
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @(item.puertoLlegada + " - " + item.puertoSalida)
+                            </td>
+                            <td>
+                                @item.FechaPrevistaSalida
+                            </td>
+                            <td>
+                                @item.FechaPrevistaLlegada
+                            </td>
+                            <td>
+                                @item.Estado
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <h4>Este Barco no tiene rutas actuales</h4>
+        }
+    </dl>
+</div>

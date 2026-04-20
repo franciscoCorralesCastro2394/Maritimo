@@ -2,6 +2,7 @@
 using Maritimo.Data.Migrations;
 using Maritimo.Models.Models;
 using Maritimo.Web.Models;
+using Maritimo.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -67,16 +68,32 @@ namespace Maritimo.Web.Controllers
             ViewBag.Rol = rolUsuario;
 
             // Obtener rutas actuales e historial
-            var rutasActual = await _context.Rutas.Where(r => r.BarcoId == id && r.Estado != "Completada").ToListAsync();
-            var rutasHistorial = await _context.Rutas.Where(r => r.BarcoId == id && r.Estado == "Completada").ToListAsync();
+            List<Ruta> rutasActual = await _context.Rutas.Where(r => r.BarcoId == id && r.Estado != "Completada").ToListAsync();
+            List<Ruta> rutasHistorial = await _context.Rutas.Where(r => r.BarcoId == id && r.Estado == "Completada").ToListAsync();
 
             // Si no hay rutas, asignar null para evitar mostrar secciones vacías en la vista
-            if (rutasActual.Count == 0) rutasActual = null;
-            if(rutasHistorial.Count == 0) rutasHistorial = null;
+            if (rutasActual.Count == 0)
+            {
+                rutasActual = null;
+                ViewBag.RutasActual = rutasActual;
+            }
+            else 
+            {
+                ViewBag.RutasActual = generarRuta(rutasActual);
+            }
 
-            // Obtener los puertos para mostrar en la vista
-            ViewBag.RutasActual = rutasActual;
-            ViewBag.RutasHistorial = rutasHistorial;
+
+            if (rutasHistorial.Count == 0)
+            {
+                rutasHistorial = null;
+                ViewBag.RutasHistorial = rutasHistorial;
+            }
+            else 
+            {
+                ViewBag.RutasHistorial = generarRuta(rutasHistorial);
+            }
+
+          
 
 
             return View(barco);
@@ -218,6 +235,25 @@ namespace Maritimo.Web.Controllers
         private bool BarcoExists(int id)
         {
             return _context.Barcos.Any(e => e.Id == id);
+        }
+
+
+        private List<RutaVM> generarRuta(List<Ruta> rutas) {
+            List<RutaVM> rutasVM = new List<RutaVM>();
+            foreach (var ruta in rutas)
+            {
+                rutasVM.Add(new RutaVM
+                {
+                    puertoSalida = _context.Puertos.Find(ruta.puertoSalidaId)?.Nombre ?? "Desconocido",
+                    puertoLlegada = _context.Puertos.Find(ruta.puertoLlegadaId)?.Nombre ?? "Desconocido",
+                    FechaPrevistaSalida = ruta.FechaPrevistaSalida,
+                    FechaPrevistaLlegada = ruta.FechaPrevistaLlegada,
+                    Estado = ruta.Estado,
+                    FechaCierre = ruta.FechaCierre,
+                    UsuarioCierre = ruta.UsuarioCierre
+                });
+            }
+            return rutasVM;
         }
     }
 }
