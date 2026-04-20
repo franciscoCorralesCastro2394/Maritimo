@@ -1,4 +1,5 @@
 ﻿using Maritimo.Models.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Maritimo.Web.ViewModels
 {
@@ -16,5 +17,16 @@ namespace Maritimo.Web.ViewModels
         public DateTime? FechaCierre { get; set; }
 
         public string? UsuarioCierre { get; set; }
+
+
+        //Filtros  
+        public string filtroBarco { get; set; }
+        public string filtroPuerto { get; set; }
+
+        public int? filtroBarcoId { get; set; }
+        public int? filtroPuertoId { get; set; }
+
+        public List<SelectListItem> Barcos { get; set; }
+        public List<SelectListItem> Puertos { get; set; }
     }
 }

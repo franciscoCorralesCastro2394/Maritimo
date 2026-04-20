@@ -293,9 +293,9 @@ namespace Maritimo.Web.Controllers
         }
 
 
-        public IActionResult Panel()
+        public IActionResult Panel(PanelVM panelVM)
         {
-            List<Ruta> rutas = _context.Rutas.ToList();
+            var rutas = _context.Rutas.ToList();
 
             // Si no hay rutas, asignar null para evitar mostrar secciones vacías en la vista
             if (rutas.Count == 0)
@@ -304,7 +304,38 @@ namespace Maritimo.Web.Controllers
                 ViewBag.Rutas = rutas;
             }
 
-            return View(generarRuta(rutas));
+
+            
+
+            panelVM.Barcos = _context.Barcos.Select(b => new SelectListItem
+                {
+                    Value = b.Id.ToString(),
+                    Text = b.Matricula
+                }).ToList();
+
+            panelVM.Puertos = _context.Puertos.Select(p => new SelectListItem
+                {
+                    Value = p.Id.ToString(),
+                    Text = p.Nombre
+                }).ToList();
+
+
+            if (panelVM.filtroBarcoId != null) 
+            {
+            
+                rutas = rutas.Where(r => r.BarcoId == panelVM.filtroBarcoId).ToList();
+
+            } 
+
+            if (panelVM.filtroPuertoId != null)
+            {
+                rutas = rutas.Where(r => r.puertoLlegadaId == panelVM.filtroPuertoId).ToList();
+            }
+
+
+            panelVM.Rutas = generarRuta(rutas);
+
+            return View(panelVM);
 
         }
 
