@@ -1,0 +1,101 @@
+﻿@model IEnumerable<Maritimo.Models.Models.OrdenesServicio>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IdUnico)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BarcoId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TipoManteniminto)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Prioridad)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Descipcion)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Fechalimite)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Estado)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.InformeCierre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FechaCreacion)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FechaCierre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UsuarioCreador)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UsuarioCierre)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.IdUnico)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BarcoId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TipoManteniminto)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Prioridad)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Descipcion)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Fechalimite)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Estado)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.InformeCierre)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FechaCreacion)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FechaCierre)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UsuarioCreador)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UsuarioCierre)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

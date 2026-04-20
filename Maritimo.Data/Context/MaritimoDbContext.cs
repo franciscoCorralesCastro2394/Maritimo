@@ -27,6 +27,7 @@ namespace Maritimo.Data.Context
 
         public DbSet<PersonalBarcoRol> PersonalBarcosRoles { get; set; }
         public DbSet<Ruta> Rutas { get; set; }
+        public DbSet<OrdenesServicio> OrdenesServicio { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
